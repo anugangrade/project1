@@ -1,0 +1,168 @@
+<%= form_for(gig, :html => { :multipart => true }) do |f| %>
+  <% if gig.errors.any? %>
+    <div id="error_explanation">
+      <h2><%= pluralize(gig.errors.count, "error") %> prohibited this gig from being saved:</h2>
+
+      <ul>
+      <% gig.errors.full_messages.each do |message| %>
+        <li><%= message %></li>
+      <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div class="full_gig_blog top_80">
+    <div class="labels">GIG TITLE</div>
+    <div class="fields">
+      <%= f.text_area :title, :class=>"form-control", :placeholder=>"I will do something I'm really good at ...... " %>
+    </div>
+  </div><!--full_blog-->
+    
+  <br/>
+  <div class="">
+    <div class="labels tp_sp">CATEGORY</div>
+    <div class="fields">
+      <div class="col-lg-4">
+        <!-- Collect the nav links, forms, and other content for toggling -->
+        <ul class="nav navbar-nav dropdown" id="bs-example-navbar-collapse-1">
+          <li>
+            <a href="#" class="dropdown-toggle" data-toggle="dropdown" id="category_dropdown_id">Select Category <span class="caret"></span></a>
+            <ul class="sub_menu dropdown-menu">
+              <% Category.all.each do |category|%>
+                <li><%= category.title %>
+                  <ul class="from_top">
+                    <li><b> <%= category.title %> </b></li>
+                    <% category.sub_categories.each do |subcategory| %>  
+                      <li><%= link_to subcategory.title, '#', :onclick=>"set_subcategory(#{category.id}, #{subcategory.id}, '#{category.title}', '#{subcategory.title}')" %></li>
+                    <% end %>  
+                  </ul>
+                </li>
+              <% end %>
+            </ul>
+          </li>
+        </ul>
+        <%= f.hidden_field :sub_category_id, :value=>"" %>
+        <%= f.hidden_field :category_id, :value=>"" %>
+      </div>
+    </div>
+      
+  </div><!--full_blog--> 
+     
+     
+       <div class="full_gig_blog">
+           <div class="labels">COVER PHOTOS</div>
+           <div class="fields cover-imgs">
+              <%= file_field_tag "images[]", type: :file, multiple: true %>
+           </div>
+     </div><!--full_blog--> 
+    
+
+      <div class="full_gig_blog">
+           <div class="labels tp_sp">GIG GALLERY</div>
+           <div class="fields bg-imgs">
+              <div class="add_more_videos"> 
+                <%= label_tag :videos, "Copy and paste Youtube url" %><br>
+                <%= text_field_tag "videos[]", '', :class=>"form-control" %>
+              </div>
+
+              <%= link_to "add more", "#", :id=>"add_videos", :class=>"btn btn-default" %>
+           </div>
+     </div><!--full_blog--> 
+     
+     
+      <div class="full_gig_blog">
+           <div class="labels">DESCRIPTION</div>
+           <div class="fields">
+              <%= f.text_area :description, :class =>"form-control" %>
+           </div>
+     </div><!--full_blog-->
+     
+       <div class="full_gig_blog">
+           <div class="labels tp_sp">TAGS</div>
+           <div class="fields">
+                <div class="form-group">
+                   <%= f.text_field :tag_list, :class=>"form-control" %>
+                   <div class="for-f">
+                    <div class="pull-right">tags separated with commas</div>
+                    </div>
+                </div>
+           </div>
+     </div><!--full_blog-->
+     
+      <div class="full_gig_blog">
+           <div class="fields">
+              <%= f.check_box :express_boolean %> I'll Deliver this within 24 hrs.
+           </div>
+     </div><!--full_blog--> 
+
+     <div class="full_gig_blog delivery_block">
+           <div class="labels">Delivery within</div>
+           <div class="fields">
+              <% @array = []
+                9.times{ |i| @array << ["#{i+2} days", i+2 ] }
+              %>
+              <%= f.select :delivery_within, options_for_select(@array) %>
+           </div>
+     </div><!--full_blog-->
+     
+       
+         <div class="full_gig_blog">
+           <div class="labels">INSTRUCTIONS<br /> FOR BYER</div>
+           <div class="fields">
+              <%= f.text_area :instructions_for_buyer, :class=>"form-control" %>
+           </div>
+     </div><!--full_blog-->
+     
+      <div class="full_gig_blog">
+           <div class="fields">
+               <%= f.submit :class=>"btn btn-success btn-large" %>
+           </div>
+           
+     </div><!--full_blog-->
+     <% if !gig.id.nil? %>
+       <div class="full_gig_blog">
+          <div class="fields">
+            Not Happy ? 
+             <%= link_to "Destroy this GIG", gig, method: :delete, data: {confirm: "Are you sure?"}, :class=> "btn btn-danger"  %>
+          </div>
+       </div><!--full_blog-->
+     <% end %>
+     
+<% end %> 
+
+
+
+<script type="text/javascript">
+$('#category').change(function(){
+
+  $.ajax({
+    url: "<%= new_gig_path%>",
+    type: "GET",
+    data: {category: this.value},
+  })
+  return false;
+});
+
+</script>
+
+<script>
+ var index = $('add_more_videos').size() + 2;
+
+  $("#add_videos").click(function(){
+
+    b='<input type="text" name="videos[]" id="videos_'+index+'" class="form-control">'
+
+    $(".add_more_videos").append(b)
+       index++;
+       return false;
+  })  
+
+  function set_subcategory(category_id, sub_category_id, category_title, subcategory_title){
+    $("#gig_sub_category_id").val(sub_category_id)
+    $("#gig_category_id").val(category_id)
+    $("#category_dropdown_id").text(category_title+","+subcategory_title)
+    return false
+  }
+
+
+</script>

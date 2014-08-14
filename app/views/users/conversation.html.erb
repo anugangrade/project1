@@ -1,0 +1,50 @@
+<h2><%= image_tag @user.avatar.url(:thumb), :style=>"width: 100px;" %> Conversation with <%= link_to @user.name.capitalize , profile_path(username: @user.username), :method=>"put" , :class=>"go_green"%> <%= image_tag "online.jpg", :class=>"online_dot" if @user.active %></h2>
+
+<%= link_to "See All Conversations", conversations_path, :class=>"go_green" %>
+<!-- Nav tabs -->
+<ul class="nav nav-tabs" role="tablist">
+  <li class="active"><a href="#home" role="tab" data-toggle="tab">Discussion</a></li>
+</ul>
+
+<!-- Tab panes -->
+<div class="tab-content">
+  <div class="tab-pane active page_tab" id="home">
+    <% if !@messages.nil? %>
+      <% @messages.each do |message| %>
+        <div class="row" style="<% if (message.user == current_user) %> background-color:ghostwhite <% end %>">
+          <div class="col-md-1"><%= image_tag message.user_avatar.url(:thumb), :class=>"conv_image", :style=>"width: 100%; margin-left: 40%;" %></div>
+          <div class="col-md-11">
+            <div class"row">
+              <div class="col-md-7">
+                <b class="go_green"><%= ( (message.user == current_user) ? "Me" : (link_to message.user_name.capitalize , profile_path(username: message.user_username), :method=>"put", :class=>"go_green") ) %> </b> 
+                <%= image_tag "online.jpg", :class=>"online_dot" if message.user_active %> <br/>
+                <%= message.content %>
+              </div>
+              <div class="col-md-5" style="border-left:1px solid;">
+                <% if !message.attachments.blank? %>
+                  ATTACHMENTS <BR/> 
+                  <% message.attachments.each do |attachment| %>
+                    <a href="<%= download_file_path(attachment) %>"><%= image_tag "download.png", :style=>"width: 15px;" %>&nbsp;&nbsp;<%= attachment.file_file_name %> </a><br/>
+                  <% end %>
+                <% end %>
+              </div>
+            </div>
+          </div>
+        </div><br/>
+      <% end %>
+    <% end %>
+    <b>Send <span class="go_green"><%= @user.name.capitalize  %></span> a message </b>
+    <%= form_for(@message, url: user_save_message_path, html: {multipart: true}) do |f| %>
+      <%= fields_for :conversation do |c| %>
+        <%= c.hidden_field :user_id, :value=> @user.id %>
+        <%= c.hidden_field :sender_id, :value=> current_user.id %>
+      <% end %>
+      <%= f.text_area :content, :class=> "form-control", :rows=>"3", :placeholder=>"Type your message here..." %>
+      <%= f.hidden_field :user_id, :value=> current_user.id %>
+      <%= fields_for :attachment do |a| %>
+        <%= a.file_field :file, multiple: true, :style=>"float:left" %>
+      <% end %>
+      <%= f.submit "Send", :class=>"btn btn-success" %>
+    <% end %>
+  </div>
+</div>

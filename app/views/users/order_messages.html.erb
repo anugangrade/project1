@@ -1,0 +1,221 @@
+<ul class="nav nav-tabs" role="tablist">
+  <li class="active"><a href="#activity" role="tab" data-toggle="tab">ACTIVITY</a></li>
+</ul>
+
+<%= link_to "Mark this order as Complete", order_complete_path(@transaction) if (current_user == @seller && @transaction.order_status != "complete") %>
+<!-- Tab panes -->
+<div class="tab-content">
+  <div class="tab-pane active page_tab" id="activity">
+    <div class="row" style="margin-top:15px;">
+      <div class="col-md-2">
+        <% if !@gig.videos.blank? %>
+          <div class="videoWrapper">
+            <iframe title="YouTube video player" width="150" height="150" src="http://www.youtube.com/embed/<%= @gig.videos[0].video_url.split("=")[1] %>?controls=2" frameborder="0" allowfullscreen></iframe>
+          </div>
+        <% else %>
+          <%= image_tag @gig.images[0].image.url, :style=>"width:100%; height:160px;" %>
+        <% end %>
+      </div>
+      <div class="col-md-8">
+        <h3><%= link_to @gig.title, show_gig_path(username: @gig.user_username, url: @gig.url), :method=> "put", :class=>"go_green" %></h3><br/>
+        <p>
+          Seller: <%= link_to @seller.name, profile_path(username: @seller.username), :method=>"put", :class=>"go_green" %> | 
+            Order: #<%= @transaction.order_number %> |
+            <%= @transaction.updated_at.strftime('%b %d, %Y') %>
+        </p>  
+      </div>
+      <div class="col-md-2"><h1 style="font-size: 75px;">$5</h1></div>
+    </div>
+    <table class="table"> 
+      <thead>
+        <tr>
+          <th>Item</th>
+          <th>Quantity</th>
+          <th>Amount</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><%= @gig.title %></td>
+          <td><%= @transaction.gig_quantity %></td>
+          <td>$5</td>
+        </tr>
+        <% @transaction.extragigs_quatity_id.each do |extra| %>
+          <% extra_gig = Extragig.find(extra[0]) %>
+          <tr>
+            <td><span class="go_green">Extra  </span><%= extra_gig.title %></td>
+            <td><%= extra[1] %></td>
+            <td>$<%= extra_gig.amount %></td>
+          </tr>
+        <% end %>
+        <tr>
+          <td></td>
+          <td></td>
+          <td>Total: $<%= @transaction.total_amount %></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<div>
+  <% @messages.each_with_index do |message, index| %>
+    <div class="row" style="margin-top:15px;">
+      <div class="col-md-1">
+        <%= image_tag message.user_avatar.url(:tiny), :style=>"width: 70px;" %>
+      </div>
+      <div class="col-md-8">
+        <h4><%= link_to message.user_name, profile_path(username: message.user_username), :method=>"put", :class=>"go_green" %></h4>
+        <%= message.content %>
+      </div>
+      <div class="col-md-3">
+        <% if !message.attachments.blank? %>
+          ATTACHMENTS <BR/> 
+          <% message.attachments.each do |attachment| %>
+            <a href="<%= download_file_path(attachment) %>"><%= image_tag "download.png", :style=>"width: 15px;" %>&nbsp;&nbsp;<%= attachment.file_file_name %> </a><br/>
+          <% end %>
+        <% end %>
+      </div>
+    </div>
+    <% if index == 1 %>
+      <article class="order-status-lrg">
+        <h4 class="in-progress">
+          <span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>
+          Order Started
+        </h4>
+        <p>
+          <%= @seller.name %> will soon start working on your order.<br>
+          This order is expected to be delivered on <%= (Date.today + (@gig.express_boolean ?  1.day : @gig.delivery_within)).strftime('%b %d, %Y') %>. 
+        </p>
+
+      </article>
+      <hr>
+      <article class="order-status-lrg">
+        <header>
+          <h4 class="delivered">
+            <span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>
+            YEEHAAA! HERE'S YOUR DELIVERY!
+          </h4>
+        </header>
+        <p>This order will be marked as complete in <%= @gig.express_boolean ? "1 day" : @gig.delivery_within.to_s+" days" %>.</p>
+      </article>
+    <% end %>
+  <% end %>
+  <% if @transaction.order_status != "complete" %>
+    <b>Reply here : </b>
+    <%= form_for(@order_message, url: save_order_message_path, html: {multipart: true}) do |f| %>
+      <%= f.hidden_field :order_conversation_id, :value=> @transaction.order_conversation.id %>
+      <%= f.text_area :content, :class=> "form-control", :rows=>"3", :placeholder=>"Type your message here..." %>
+      <%= f.hidden_field :user_id, :value=> current_user.id %>
+      <%= hidden_field_tag "transaction_id", @transaction.id %>
+      <%= fields_for :attachment do |a| %>
+        <%= a.file_field :file, multiple: true, :style=>"float:left" %>
+      <% end %>
+      <%= f.submit "Send", :class=>"btn btn-success" %>
+    <% end %>
+  <% else %>
+    <% if current_user.ratings.where(gig_id: @gig.id).count != 3 %>
+      <h4>Please rate your experience</h4>
+    <% end %>
+    <% if current_user.ratings.where(gig_id: @gig.id, rate_type: "communication").blank? %>
+      <div class="row">
+        <div class="col-md-9">
+          <b>Communication With Seller </b><br/>
+          How responsive was the seller during the process? 
+        </div>
+        <div class="col-md-3"><div class="user_star" id="communication"></div></div>
+      </div>
+      <hr>
+    <% end %>
+    <% if current_user.ratings.where(gig_id: @gig.id, rate_type: "service").blank? %>
+      <div class="row">
+        <div class="col-md-9">
+          <b>Service as Described</b><br/>
+          Did the result match the Gig’s description? 
+        </div>
+        <div class="col-md-3"><div class="user_star" id="service"></div></div>
+      </div>
+      <hr>
+    <% end %>
+    <% if current_user.ratings.where(gig_id: @gig.id, rate_type: "recommend").blank? %>
+      <div class="row">
+        <div class="col-md-9">
+          <b>Buy Again Or Recommend</b><br/>
+          Would you recommend buying this Gig? 
+        </div>
+        <div class="col-md-3"><div class="user_star" id="recommend"></div></div>
+      </div>
+    <% end %>
+    <% if current_user.reviews.where(gig_id: @gig.id).blank? %>
+      <a href="#" data-toggle="modal" data-target="#myModal" class="btn btn-success">Write your reviews here</a>
+    <% end %>
+
+    <article class="order-status-lrg">
+      <h4 class="delivered">
+        <span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>
+        ORDER COMPLETE
+      </h4>
+    </article>
+
+  <% end %>
+</div>
+
+<!-- Modal -->
+<div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+        <h4 class="modal-title" id="myModalLabel">Write ME your reviews</h4>
+      </div>
+      <div class="modal-body">
+        <%= form_for :review, :url=> save_review_path do |f|%>
+          <%= f.text_area :content, required: true, :class=>"form-control", :placeholder=>"Give your views about this GIG" %>
+          <%= f.hidden_field :gig_id, :value=> @gig.id%>
+          <%= hidden_field_tag :transaction_id, @transaction.id%>
+          <%= f.check_box :like_it %> LIKE
+          <%= f.submit :class=>"btn btn-success right" %>
+        <% end %>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+  .order-status-lrg span{
+    background: url("/assets/fiverr_icons.png") no-repeat scroll 0 0 rgba(0, 0, 0, 0);
+    height: 23px;
+    margin-left: -24px;
+    width: 48px;
+  }
+  h4.in-progress span{
+    background-position: -338px 0;
+  }
+  h4.in-progress{
+    font-size: 19px;
+    color: #00668C;
+  }
+  .order-status-lrg{
+    text-align: center;
+  }
+
+  h4.delivered span{
+    background-position: -600px 0;
+  }
+
+</style>
+
+<script>
+  raty_js()
+  $('.user_star').raty({
+    path: '/assets',
+    click: function(score, evt) {
+      var type = this.id
+      $.ajax({
+        url: "<%= rate_it_gig_path(@gig) %>",
+        type: 'post',
+        data: { score: score, type: type }
+      }).done(function (data){});
+    }
+  });
+</script>

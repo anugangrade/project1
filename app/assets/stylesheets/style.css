@@ -1,0 +1,71 @@
+a, a:link, a:visited {text-decoration: none;}
+a:hover		{text-decoration: underline;}
+
+ul									{ list-style: none; }
+
+/* 
+	LEVEL ONE
+*/
+ul.dropdown a:hover		            { z-index: 1000; }
+ul.dropdown a:active                { color: #ffa500;z-index: 1000; }
+ul.dropdown li:last-child a         { border-right: none; } /* Doesn't work in IE */
+ul.dropdown li.hover,
+ul.dropdown li:hover                { position: relative;z-index: 1000; }
+ul.dropdown li.hover a              { color: black;z-index: 1000; }
+
+
+/* 
+	LEVEL TWO
+*/
+ul.dropdown ul 						{ width: 220px; visibility: hidden; position: absolute; top: 100%; left: 0;z-index: 1000; }
+ul.dropdown ul li 					{ font-weight: normal;
+									  float: none;z-index: 1000;
+									  padding: 5px; }
+									  
+                                    /* IE 6 & 7 Needs Inline Block */
+ul.dropdown ul li a					{ border-right: none; width: 100%; display: inline-block;z-index: 1000; } 
+
+/* 
+	LEVEL THREE
+*/
+ul.dropdown ul ul 					{ left: 100%; top: 0;z-index: 1000; background: #f6f6f6;}
+ul.dropdown li:hover > ul 			{ visibility: visible;z-index: 1000; }
+
+
+
+/*----- create a gig--------------*/
+.cr_gig{
+    text-align: center;
+}
+.gig_lan{float: right;margin-top: 19px;}
+.stages i{ float: left;
+    margin-right: 6px;
+    margin-top: 17px;}
+.stages{float: left; display: inline;margin-right: 20px;color: #878786;}
+.stages span{
+     display: inline-block;
+    font-size: 10px;
+    font-weight: 700;
+    line-height: 10px;
+    padding-top: 16px;
+    text-transform: uppercase;
+    vertical-align: top;
+    padding-bottom: 10px;
+}
+.wh_active{color:#ffa846;}
+.top_80{margin-top: 80px !important;}
+.full_gig_blog{width: 100%; display: block;overflow: hidden;margin-top: 34px; }
+.labels{display: inline; } 
+.fields{float:  right; display: inline; width: 85%; }
+.area1{width: 100%;display: block;min-height: 100px; border-radius: 4px;border: 1px solid #eee;color: #333;}
+.fields textarea{font-size: 14px;}
+.tp_sp{line-height: 33px;}
+
+
+.cen_areas{  display: block;
+    margin: 13px auto;
+    overflow: hidden;
+    width: 103px;}
+.mid-space{max-width: 250px;}
+.this_wd{max-width: 150px;}
+.max{line-height: 33px;padding-right: 10px;}

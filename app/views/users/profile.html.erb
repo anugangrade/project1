@@ -1,0 +1,51 @@
+<div class="row">
+  <div class="col-md-2"><%= image_tag @user.avatar.url, :class=>"profile_image" %></div>
+  <div class="col-md-10">
+    <h1><%=@user.name.capitalize %> <%= image_tag "online.jpg", :class=>"online_dot" if @user.active %></h1>
+    <div id="star" style="float:left"></div> &nbsp;&nbsp;
+    <% if !@user.location.nil? %>FROM : <b><%= @user.location.upcase  %></b>&nbsp;&nbsp; <% end %>
+    <%= link_to "CONTACT", conversation_path(@user), :class=>"go_green" if @user != current_user %>
+    
+    <p><%=@user.description if !@user.description.nil? %></p>
+
+    <%= link_to 'Edit Profile', edit_user_registration_path, :class=>"go_green" if (user_signed_in? && @user == current_user) %>
+  </div>
+</div>
+
+<div class="profile_gig_list">
+  <% if !@gigs.blank? %>
+    <% count = 0%>
+    <h3> <%=@user.name.capitalize %>'s gigs </h3>
+    <div class="row">
+      <%= render "gigs/index", :gigs => @gigs %>
+    </div>
+  <% else %>
+    <h3>You haven't Created Any Gig yet... Start with creating a <%= link_to "GIG", new_gig_path, :class=>"go_green" %></h3>
+  <% end %>
+</div>
+
+<script type="text/javascript">
+  $(document).ready(function(){
+  raty_js()
+    $('#star').raty({
+      readOnly: true,
+      score: <%= @user.average_rating %>,
+      path: '/assets'
+    });
+  });
+</script> 
+
+<style>
+
+.tab-content {
+    border: 1px solid #DDDDDD;
+    width: 50%;
+}
+.nav.nav-tabs {
+    width: 50%;
+}
+.profile_image{
+  height: 130px;
+  width: 140px;
+}
+</style>

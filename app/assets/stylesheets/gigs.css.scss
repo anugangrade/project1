@@ -1,0 +1,58 @@
+// Place all the styles related to the Gigs controller here.
+// They will automatically be included in application.css.
+// You can use Sass (SCSS) here: http://sass-lang.com/
+@import "bootstrap";
+
+.container .jumbotron {
+	padding-bottom: 40px !important;
+	padding-top: 15px !important;
+  padding-left: 10px !important;
+  padding-right: 10px !important;
+}
+	
+
+.social-share-button{
+	float: right;
+}
+
+.container .jumbotron h6{
+	float: left;
+}
+
+.social-share-button.btn.btn-default {
+    height: 33px;
+    margin-left: 5px;
+}
+
+.bookmark_gig.btn.btn-default {
+    float: right;
+}
+
+.embedly-embed{height: 460px !important;}
+.bx-viewport{ height:470px !important; }
+
+
+.bx-wrapper, .bx-viewport img{
+    height: 458px !important; /*provide height of slider*/
+}
+
+.right{
+  float: right;
+}
+
+ul.tag_list li{
+  background: none repeat scroll 0 0 #ccc;
+  border-radius: 3px;
+  display: inline-block;
+  margin: 5px 5px 0 0;
+  padding: 3px 6px; 
+}
+
+ul.tag_list li a{
+  color: #fff;
+}
+
+ul.tag_list li:hover{
+  background-color: #00B22D;
+  color: #fff;
+}
